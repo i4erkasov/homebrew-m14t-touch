@@ -1,6 +1,6 @@
 cask "m14t-touch" do
-  version "1.0.3"
-  sha256 "851166dfd8b1611ac9ed862718309cdc66e2416bb98f430b07a5cddecf25bc6e"
+  version "1.0.2"
+  sha256 "97bad9fb5fa9952336a5d5c8b98b01f627d77f6b6603a0092888d900c65812ec"
 
   url "https://github.com/i4erkasov/m14t-touch-macos/releases/download/v#{version}/M14t-Touch-v#{version}.dmg"
   name "M14t Touch"
