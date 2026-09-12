@@ -41,9 +41,16 @@ cask "m14t-touch" do
   uninstall quit: "com.m14ttouch.app"
 
   # Only what the app itself writes. `zap` runs solely on `brew uninstall --zap`,
-  # so a plain uninstall keeps the settings — calibration included — for a
-  # reinstall. Caches and HTTPStorages are the update check's URLSession.
+  # so a plain uninstall keeps everything below — calibration included — for a
+  # reinstall.
+  #
+  #   .m14ttouch.json  the calibration, one entry per display. Not in the
+  #                    preferences domain, and so missed by a zap that only
+  #                    looked in ~/Library: it would have stayed in the home
+  #                    directory after everything else was gone.
+  #   Caches, HTTPStorages  created by the update check's URLSession.
   zap trash: [
+    "~/.m14ttouch.json",
     "~/Library/Caches/com.m14ttouch.app",
     "~/Library/HTTPStorages/com.m14ttouch.app",
     "~/Library/Preferences/com.m14ttouch.app.plist",
