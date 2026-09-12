@@ -2,27 +2,20 @@
 
 A [Homebrew tap](https://docs.brew.sh/Taps) for
 [**M14t Touch**](https://github.com/i4erkasov/m14t-touch-macos) — touch and
-stylus input for the Lenovo ThinkVision M14t on macOS.
+stylus input for the Lenovo ThinkVision M14t on macOS 13 or later, Apple Silicon
+and Intel.
 
 ## Install
 
 ```sh
 brew tap i4erkasov/m14t-touch
-brew install --cask --no-quarantine m14t-touch
+brew trust i4erkasov/m14t-touch
+brew install --cask m14t-touch
 ```
 
-`--no-quarantine` is not decoration. The app is signed, but not notarized by
-Apple — notarization needs a paid Developer ID — and macOS refuses to run
-unnotarized code that carries the quarantine attribute Homebrew applies by
-default. Without the flag the install succeeds and the app will not open. If you
-have already installed it without the flag:
-
-```sh
-xattr -dr com.apple.quarantine "/Applications/M14t Touch.app"
-```
-
-Use the same flag when upgrading, or the attribute comes back with the new
-version.
+The middle command is not optional and not ours: Homebrew 6 refuses to load a
+cask from a tap outside `Homebrew/*` until you say you trust it. It is a
+one-time answer per tap, kept in `~/.homebrew/trust.json`.
 
 ## After installing
 
@@ -38,15 +31,39 @@ is not connected or touch is off, and the menu says which.
 The [settings guide](https://i4erkasov.github.io/m14t-touch-macos/guide.html)
 describes every option.
 
+## About Gatekeeper
+
+M14t Touch is signed, but **not notarized** by Apple — notarization requires a
+paid Developer ID. macOS kills unnotarized code that carries the quarantine
+attribute, Homebrew 6 always applies that attribute, and the `--no-quarantine`
+flag that used to opt out no longer exists. Installed as-is, the app would never
+open.
+
+So the cask clears the attribute from the app it just installed. You should know
+what that means rather than find it in the source later:
+
+- **Gatekeeper does not vet this app.** Nobody at Apple has looked at it.
+- What Gatekeeper would have guaranteed — that the bytes are the ones the
+  developer published — the cask guarantees differently: it checks the download
+  against a SHA-256 pinned in this repository, fetched over HTTPS from the
+  project's own GitHub release.
+- Notarization is the real fix, and it is on the project's list.
+
+Homebrew offers no flag to keep the attribute, so if you would rather handle
+Gatekeeper yourself, skip the cask: download the DMG from
+[Releases](https://github.com/i4erkasov/m14t-touch-macos/releases) and follow the
+note inside it.
+
 ## Upgrade
 
 ```sh
 brew update
-brew upgrade --cask --no-quarantine m14t-touch
+brew upgrade --cask m14t-touch
 ```
 
-Permissions survive an upgrade: every release is signed with the same identity,
-and macOS keys those two grants to the signature rather than to the bytes.
+Permissions survive an upgrade, and a move: every release is signed with the
+same identity, and macOS keys Input Monitoring and Accessibility to the
+signature and bundle identifier rather than to the bytes or the path.
 
 ## Uninstall
 
@@ -61,10 +78,10 @@ they are, so reinstalling picks up where you left off. To remove those too:
 brew uninstall --zap --cask m14t-touch
 ```
 
-If you had **Open at login** switched on, macOS may keep showing the app under
+If you had **Open at login** switched on, macOS may keep listing the app under
 System Settings → General → Login Items until you remove it there. Homebrew
-cannot clear that entry: it lives in the system's background-task database, not
-in a file the cask owns.
+cannot clear that: it lives in the system's background-task database, registered
+through `SMAppService`, not in a file this cask owns.
 
 ## Untap
 
@@ -74,8 +91,8 @@ brew untap i4erkasov/m14t-touch
 
 ## How this tap is updated
 
-Publishing a release in the main repository triggers
+Publishing a release in the main repository runs
 [`release.yml`](https://github.com/i4erkasov/m14t-touch-macos/blob/main/.github/workflows/release.yml)
-there, which reads the new version, downloads the DMG, computes its SHA-256 and
-opens a pull request here. Nothing is pushed to `main` unreviewed, and the
-checksum in the cask is always the one of the file GitHub is actually serving.
+there, which reads the new version, downloads the DMG GitHub is actually
+serving, computes its SHA-256, and opens a pull request here. Nothing lands on
+`main` unreviewed, and the checksum is never copied from a local build.
