@@ -8,14 +8,28 @@ and Intel.
 ## Install
 
 ```sh
-brew tap i4erkasov/m14t-touch
 brew trust i4erkasov/m14t-touch
-brew install --cask m14t-touch
+brew install --cask i4erkasov/m14t-touch/m14t-touch
 ```
 
-The middle command is not optional and not ours: Homebrew 6 refuses to load a
+The first command is not optional and not ours: Homebrew 6 refuses to load a
 cask from a tap outside `Homebrew/*` until you say you trust it. It is a
-one-time answer per tap, kept in `~/.homebrew/trust.json`.
+one-time answer per tap, kept in `~/.homebrew/trust.json`. It also has to come
+**first** — `brew tap` reads the cask as it taps, so tapping an untrusted tap
+fails outright:
+
+```
+Error: Cannot tap i4erkasov/m14t-touch: invalid syntax in tap!
+```
+
+The install adds the tap itself, which is why there is no separate `brew tap`
+line. If you prefer one, it works once the trust is recorded:
+
+```sh
+brew trust i4erkasov/m14t-touch
+brew tap i4erkasov/m14t-touch
+brew install --cask m14t-touch
+```
 
 ## After installing
 
